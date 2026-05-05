@@ -14,6 +14,7 @@ function App() {
   const [service, setService] = useState("");
   const [role, setRole] = useState("");
   const [agents, setAgents] = useState<Agent[]>([]);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     const timer = setTimeout(() => setLoading(false), 1200);
@@ -24,7 +25,7 @@ function App() {
     e.preventDefault();
 
     if (!name.trim() || !service.trim() || !role.trim()) {
-      alert("Veuillez remplir tous les champs");
+      setError("Tous les champs sont obligatoires");
       return;
     }
 
@@ -39,6 +40,11 @@ function App() {
     setName("");
     setService("");
     setRole("");
+    setError("");
+  };
+
+  const handleDelete = (id: number) => {
+    setAgents(agents.filter((agent) => agent.id !== id));
   };
 
   if (loading) {
@@ -78,7 +84,7 @@ function App() {
               Gestion des agents
             </h1>
             <p className="mt-2 text-sm text-slate-500">
-              Exercice React — formulaire, validation et affichage dynamique
+              Formulaire, validation et affichage dynamique
             </p>
           </div>
         </header>
@@ -86,11 +92,13 @@ function App() {
         <section className="px-8 py-10 grid md:grid-cols-2 gap-8">
           <form
             onSubmit={handleSubmit}
-            className="bg-slate-50 border rounded-xl p-6 space-y-4"
+            className="bg-slate-50 border rounded-xl p-6 space-y-4 transition hover:shadow-lg"
           >
             <h2 className="text-lg font-bold text-blue-950">
               Ajouter un agent
             </h2>
+
+            {error && <p className="text-red-600 text-sm">{error}</p>}
 
             <input
               type="text"
@@ -124,7 +132,7 @@ function App() {
             </button>
           </form>
 
-          <div className="bg-white border rounded-xl p-6">
+          <div className="bg-white border rounded-xl p-6 transition hover:shadow-lg">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-lg font-bold text-blue-950">
                 Liste des agents
@@ -149,6 +157,13 @@ function App() {
                     <p className="text-sm text-slate-600">
                       {agent.service} — {agent.role}
                     </p>
+
+                    <button
+                      onClick={() => handleDelete(agent.id)}
+                      className="text-red-600 text-sm mt-2"
+                    >
+                      Supprimer
+                    </button>
                   </div>
                 ))}
               </div>
