@@ -33,7 +33,7 @@ function App() {
       setFilteredAgents(parsed);
     }
 
-    const timer = setTimeout(() => setLoading(false), 1000);
+    const timer = setTimeout(() => setLoading(false), 4000);
     return () => clearTimeout(timer);
   }, []);
 
@@ -93,27 +93,31 @@ function App() {
     setFilteredAgents(agents);
   };
 
-  if (loading) {
-    return (
-      <main className="min-h-screen flex items-center justify-center bg-white">
-        <div className="text-center">
-          <img
-            src="/images/acgt-symbol.png"
-            alt="ACGT"
-            className="w-24 h-24 mx-auto animate-pulse"
-          />
-          <p className="mt-4 text-sm font-semibold text-blue-900">
-            Chargement de la plateforme...
-          </p>
-        </div>
-      </main>
-    );
-  }
+ if (loading) {
+  return (
+    <main className="min-h-screen flex items-center justify-center bg-white">
+      <div className="relative flex items-center justify-center">
+
+        <div className="absolute w-40 h-40 border-4 border-sky-400 border-t-transparent rounded-full animate-spin duration-2000"></div>
+        <div className="absolute w-28 h-28 border-4 border-yellow-400 border-b-transparent rounded-full animate-spin duration-2000 [animation-direction:reverse]"></div>
+
+        <img
+          src="/images/acgt-symbol.png"
+          alt="ACGT"
+          className="w-full h-full object-contain"
+        />
+      </div>
+
+      <p className="absolute bottom-20 text-sm text-blue-900 font-semibold">
+        Chargement de la plateforme...
+      </p>
+    </main>
+  );
+}
 
   return (
     <main className="min-h-screen bg-slate-100 p-4">
       <section className="max-w-5xl mx-auto bg-white min-h-[90vh] shadow-lg border-t-[14px] border-sky-500">
-        {/* HEADER */}
         <header className="px-8 pt-8">
           <div className="flex items-center justify-between">
             <img src="/images/acgt-logo.png" className="w-36" />
@@ -235,11 +239,17 @@ function App() {
 
         {/* FOOTER */}
         <footer className="px-8 pb-6 mt-8">
-          <div className="border-t-4 border-red-600 pt-3 flex justify-between text-xs">
-            <span>© ACGT</span>
-            <span>Exercice de stage</span>
-          </div>
-        </footer>
+  <div className="flex h-1.5 w-full">
+    <div className="flex-1 bg-sky-500"></div>
+    <div className="flex-1 bg-yellow-400"></div>
+    <div className="flex-1 bg-red-600"></div>
+  </div>
+
+  <div className="pt-3 flex justify-between text-xs text-slate-500">
+    <span>© ACGT — Agence Congolaise des Grands Travaux: Mai 2026</span>
+    <span>Exercice de stage</span>
+  </div>
+</footer>
       </section>
     </main>
   );
