@@ -15,6 +15,7 @@ function App() {
   const [role, setRole] = useState("");
   const [agents, setAgents] = useState<Agent[]>([]);
   const [error, setError] = useState("");
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     const timer = setTimeout(() => setLoading(false), 1200);
@@ -63,6 +64,10 @@ function App() {
       </main>
     );
   }
+
+  const filteredAgents = agents.filter((agent) =>
+    agent.name.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
     <main className="min-h-screen bg-slate-100 p-4">
@@ -124,6 +129,14 @@ function App() {
               className="w-full border border-slate-300 rounded-lg px-4 py-3 outline-none focus:border-blue-800"
             />
 
+            <input
+              type="text"
+              placeholder="Rechercher un agent..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full border border-slate-300 rounded-lg px-4 py-2 mb-4"
+            />
+
             <button
               type="submit"
               className="w-full bg-blue-900 hover:bg-blue-950 text-white font-semibold py-3 rounded-lg transition"
@@ -138,7 +151,7 @@ function App() {
                 Liste des agents
               </h2>
               <span className="bg-yellow-100 text-yellow-700 text-sm px-3 py-1 rounded-full">
-                Total : {agents.length}
+                Total : {filteredAgents.length}
               </span>
             </div>
 
@@ -148,7 +161,7 @@ function App() {
               </p>
             ) : (
               <div className="space-y-3">
-                {agents.map((agent) => (
+                {filteredAgents.map((agent) => (
                   <div
                     key={agent.id}
                     className="border rounded-lg p-4 bg-slate-50"
