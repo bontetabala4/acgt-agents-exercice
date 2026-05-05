@@ -18,10 +18,21 @@ function App() {
   const [search, setSearch] = useState("");
   const [success, setSuccess] = useState("");
 
-  useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 1200);
-    return () => clearTimeout(timer);
-  }, []);
+useEffect(() => {
+  const savedAgents = localStorage.getItem("agents");
+
+  if (savedAgents) {
+    setAgents(JSON.parse(savedAgents));
+  }
+
+  const timer = setTimeout(() => setLoading(false), 2000);
+  return () => clearTimeout(timer);
+}, []);
+
+useEffect(() => {
+  localStorage.setItem("agents", JSON.stringify(agents));
+}, [agents]);
+
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
