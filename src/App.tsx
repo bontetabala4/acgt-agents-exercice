@@ -16,6 +16,7 @@ function App() {
   const [agents, setAgents] = useState<Agent[]>([]);
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
+  const [success, setSuccess] = useState("");
 
   useEffect(() => {
     const timer = setTimeout(() => setLoading(false), 1200);
@@ -27,6 +28,7 @@ function App() {
 
     if (!name.trim() || !service.trim() || !role.trim()) {
       setError("Tous les champs sont obligatoires");
+      setSuccess("");
       return;
     }
 
@@ -42,6 +44,7 @@ function App() {
     setService("");
     setRole("");
     setError("");
+    setSuccess("Agent ajouté avec succès !");
   };
 
   const handleDelete = (id: number) => {
@@ -104,6 +107,7 @@ function App() {
             </h2>
 
             {error && <p className="text-red-600 text-sm">{error}</p>}
+            {success && <p className="text-green-600 text-sm">{success}</p>}
 
             <input
               type="text"
