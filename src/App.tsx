@@ -10,29 +10,38 @@ type Agent = {
 
 function App() {
   const [loading, setLoading] = useState(true);
+
   const [name, setName] = useState("");
   const [service, setService] = useState("");
   const [role, setRole] = useState("");
+
   const [agents, setAgents] = useState<Agent[]>([]);
-  const [error, setError] = useState("");
+  const [filteredAgents, setFilteredAgents] = useState<Agent[]>([]);
+
   const [search, setSearch] = useState("");
+
+  const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-useEffect(() => {
-  const savedAgents = localStorage.getItem("agents");
+  // Charger depuis localStorage
+  useEffect(() => {
+    const savedAgents = localStorage.getItem("agents");
 
-  if (savedAgents) {
-    setAgents(JSON.parse(savedAgents));
-  }
+    if (savedAgents) {
+      const parsed = JSON.parse(savedAgents);
+      setAgents(parsed);
+      setFilteredAgents(parsed);
+    }
 
-  const timer = setTimeout(() => setLoading(false), 2000);
-  return () => clearTimeout(timer);
-}, []);
+    const timer = setTimeout(() => setLoading(false), 1000);
+    return () => clearTimeout(timer);
+  }, []);
 
-useEffect(() => {
-  localStorage.setItem("agents", JSON.stringify(agents));
-}, [agents]);
-
+  // Sauvegarder automatiquement
+  useEffect(() => {
+    localStorage.setItem("agents", JSON.stringify(agents));
+    setFilteredAgents(agents);
+  }, [agents]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,15 +60,37 @@ useEffect(() => {
     };
 
     setAgents([newAgent, ...agents]);
+
+    setSuccess("Agent ajouté avec succès");
+    setError("");
+
     setName("");
     setService("");
     setRole("");
-    setError("");
-    setSuccess("Agent ajouté avec succès !");
   };
 
   const handleDelete = (id: number) => {
     setAgents(agents.filter((agent) => agent.id !== id));
+  };
+
+  const handleSearch = () => {
+    if (!search.trim()) {
+      setFilteredAgents(agents);
+      return;
+    }
+
+    const result = agents.filter((agent) =>
+      agent.name.toLowerCase().includes(search.toLowerCase()) ||
+      agent.service.toLowerCase().includes(search.toLowerCase()) ||
+      agent.role.toLowerCase().includes(search.toLowerCase())
+    );
+
+    setFilteredAgents(result);
+  };
+
+  const handleResetSearch = () => {
+    setSearch("");
+    setFilteredAgents(agents);
   };
 
   if (loading) {
@@ -79,16 +110,13 @@ useEffect(() => {
     );
   }
 
-  const filteredAgents = agents.filter((agent) =>
-    agent.name.toLowerCase().includes(search.toLowerCase())
-  );
-
   return (
     <main className="min-h-screen bg-slate-100 p-4">
       <section className="max-w-5xl mx-auto bg-white min-h-[90vh] shadow-lg border-t-[14px] border-sky-500">
+        {/* HEADER */}
         <header className="px-8 pt-8">
           <div className="flex items-center justify-between">
-            <img src="/images/acgt-logo.png" alt="Logo ACGT" className="w-36" />
+            <img src="/images/acgt-logo.png" className="w-36" />
 
             <div className="text-right text-xs text-slate-500">
               <p>Agence Congolaise des Grands Travaux</p>
@@ -102,13 +130,12 @@ useEffect(() => {
             <h1 className="text-2xl md:text-3xl font-bold text-blue-950 uppercase">
               Gestion des agents
             </h1>
-            <p className="mt-2 text-sm text-slate-500">
-              Formulaire, validation et affichage dynamique
-            </p>
           </div>
         </header>
 
+        {/* BODY */}
         <section className="px-8 py-10 grid md:grid-cols-2 gap-8">
+          {/* FORM */}
           <form
             onSubmit={handleSubmit}
             className="bg-slate-50 border rounded-xl p-6 space-y-4 transition hover:shadow-lg"
@@ -125,7 +152,7 @@ useEffect(() => {
               placeholder="Nom complet"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full border border-slate-300 rounded-lg px-4 py-3 outline-none focus:border-blue-800"
+              className="w-full border rounded-lg px-4 py-3"
             />
 
             <input
@@ -133,7 +160,7 @@ useEffect(() => {
               placeholder="Service"
               value={service}
               onChange={(e) => setService(e.target.value)}
-              className="w-full border border-slate-300 rounded-lg px-4 py-3 outline-none focus:border-blue-800"
+              className="w-full border rounded-lg px-4 py-3"
             />
 
             <input
@@ -141,67 +168,75 @@ useEffect(() => {
               placeholder="Fonction"
               value={role}
               onChange={(e) => setRole(e.target.value)}
-              className="w-full border border-slate-300 rounded-lg px-4 py-3 outline-none focus:border-blue-800"
+              className="w-full border rounded-lg px-4 py-3"
             />
 
-            <input
-              type="text"
-              placeholder="Rechercher un agent..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full border border-slate-300 rounded-lg px-4 py-2 mb-4"
-            />
-
-            <button
-              type="submit"
-              className="w-full bg-blue-900 hover:bg-blue-950 text-white font-semibold py-3 rounded-lg transition"
-            >
+            <button className="w-full bg-blue-900 text-white py-3 rounded-lg">
               Ajouter
             </button>
           </form>
 
-          <div className="bg-white border rounded-xl p-6 transition hover:shadow-lg">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-bold text-blue-950">
-                Liste des agents
-              </h2>
-              <span className="bg-yellow-100 text-yellow-700 text-sm px-3 py-1 rounded-full">
-                Total : {filteredAgents.length}
-              </span>
+          {/* LIST */}
+          <div className="bg-white border rounded-xl p-6">
+            <div className="flex justify-between mb-4">
+              <h2 className="font-bold">Liste des agents</h2>
+              <span>Total : {agents.length}</span>
             </div>
 
-            {agents.length === 0 ? (
-              <p className="text-sm text-slate-500">
-                Aucun agent ajouté pour le moment.
-              </p>
-            ) : (
-              <div className="space-y-3">
-                {filteredAgents.map((agent) => (
-                  <div
-                    key={agent.id}
-                    className="border rounded-lg p-4 bg-slate-50"
-                  >
-                    <p className="font-bold text-blue-950">{agent.name}</p>
-                    <p className="text-sm text-slate-600">
-                      {agent.service} — {agent.role}
-                    </p>
+            {/* SEARCH */}
+            <div className="mb-4 flex gap-2">
+              <input
+                type="text"
+                placeholder="Rechercher..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full border px-3 py-2 rounded"
+              />
 
-                    <button
-                      onClick={() => handleDelete(agent.id)}
-                      className="text-red-600 text-sm mt-2"
-                    >
-                      Supprimer
-                    </button>
-                  </div>
-                ))}
-              </div>
+              <button
+                type="button"
+                onClick={handleSearch}
+                className="bg-blue-900 text-white px-4 rounded"
+              >
+                Rechercher
+              </button>
+
+              <button
+                type="button"
+                onClick={handleResetSearch}
+                className="bg-gray-200 px-4 rounded"
+              >
+                Reset
+              </button>
+            </div>
+
+            {/* LIST ITEMS */}
+            {filteredAgents.length === 0 ? (
+              <p>Aucun agent trouvé</p>
+            ) : (
+              filteredAgents.map((agent) => (
+                <div key={agent.id} className="border p-3 mb-2 rounded">
+                  <p className="font-bold">{agent.name}</p>
+                  <p className="text-sm">
+                    {agent.service} - {agent.role}
+                  </p>
+
+                  <button
+                    onClick={() => handleDelete(agent.id)}
+                    className="text-red-600 text-sm mt-2"
+                  >
+                    Supprimer
+                  </button>
+                </div>
+              ))
             )}
           </div>
         </section>
 
+        {/* FOOTER */}
         <footer className="px-8 pb-6 mt-8">
-          <div className="border-t-4 border-red-600 pt-3 flex justify-between text-xs text-slate-500">
-            <span>© ACGT — Agence Congolaise des Grands Travaux</span>
+          <div className="border-t-4 border-red-600 pt-3 flex justify-between text-xs">
+            <span>© ACGT</span>
             <span>Exercice de stage</span>
           </div>
         </footer>
